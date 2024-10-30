@@ -1,6 +1,10 @@
-use binrw::{io::BufReader, BinRead, BinReaderExt};
+use binrw::{io::BufReader, BinReaderExt};
 use clap::Parser;
-use std::{fs::File, io::SeekFrom, path::PathBuf};
+use std::{
+    fs::File,
+    io::SeekFrom,
+    path::{Path, PathBuf},
+};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -15,40 +19,12 @@ struct XdbfFreeSpaceEntry {
     _length: u32,
 }
 
-#[derive(Debug)]
-enum XdbfId {
-    String(String),
-    Number(u64),
-}
-
-impl BinRead for XdbfId {
-    type Args<'a> = ();
-    fn read_options<R: std::io::Read + std::io::Seek>(
-        reader: &mut R,
-        _endian: binrw::Endian,
-        _args: Self::Args<'_>,
-    ) -> binrw::BinResult<Self> {
-        let mut bytes = [0u8; 8];
-        reader.read_exact(&mut bytes)?;
-        let first_non_zero_index = bytes.iter().position(|&b| b != 0).unwrap_or(8);
-        let trimmed = &bytes[first_non_zero_index..];
-        if let Ok(string) = std::str::from_utf8(trimmed) {
-            if !string.is_empty() && string.chars().all(|c| c.is_ascii_graphic()) {
-                return Ok(Self::String(string.to_owned()));
-            }
-        }
-
-        let number = u64::from_be_bytes(bytes);
-        Ok(Self::Number(number))
-    }
-}
-
 #[binrw::binread]
 #[br(import(data_entry_offset: u32))]
 #[derive(Debug)]
 struct XdbfEntry {
     namespace: u16,
-    id: XdbfId,
+    id: u64,
     _offset_specifier: u32,
     _length: u32,
     #[br(seek_before = SeekFrom::Start((data_entry_offset + _offset_specifier).into()),
@@ -59,7 +35,6 @@ struct XdbfEntry {
 #[binrw::binread]
 #[derive(Debug)]
 struct XdbfHeader {
-    _magic: u32,
     _version: u32,
     entry_table_length: u32,
     entry_count: u32,
@@ -69,6 +44,7 @@ struct XdbfHeader {
 
 #[binrw::binread]
 #[derive(Debug)]
+#[br(stream = s, is_big = s.read_be::<u32>()? == 0x58444246)]
 struct Xdbf {
     _header: XdbfHeader,
     #[br(count = _header.entry_count,
@@ -80,6 +56,48 @@ struct Xdbf {
     _free_space_table: Vec<XdbfFreeSpaceEntry>,
 }
 
+fn id_to_pathbuf(entry: &XdbfEntry) -> PathBuf {
+    PathBuf::from(format!(
+        "{}.{}.{}",
+        entry.namespace,
+        {
+            let bytes: [u8; 8] = u64::to_be_bytes(entry.id);
+            let result = match entry.namespace {
+                1 => {
+                    let first_non_zero_index = bytes.iter().position(|&b| b != 0).unwrap_or(8);
+                    let trimmed = &bytes[first_non_zero_index..];
+
+                    std::str::from_utf8(trimmed).ok().filter(|string| {
+                        !string.is_empty() && string.chars().all(|c| c.is_ascii_graphic())
+                    })
+                }
+                3 => match entry.id {
+                    1 => Some("en-US"),
+                    2 => Some("ja-JP"),
+                    3 => Some("de-DE"),
+                    4 => Some("fr-FR"),
+                    5 => Some("es-ES"),
+                    6 => Some("it-IT"),
+                    7 => Some("ko-KR"),
+                    8 => Some("zh-CHT"),
+                    9 => Some("pt-PT"),
+                    10 => Some("zh-CHS"),
+                    11 => Some("pl-PL"),
+                    12 => Some("ru-RU"),
+                    _ => None,
+                },
+                _ => None,
+            };
+
+            match result {
+                Some(s) => s.to_string(),
+                None => entry.id.to_string(),
+            }
+        },
+        if entry.namespace == 2 { "png" } else { "bin" }
+    ))
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
@@ -88,20 +106,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let xdbf: Xdbf = bufreader.read_be()?;
 
-    let dir = args.name.parent().unwrap();
+    let dir = args.name.parent().unwrap_or_else(|| Path::new("."));
 
     for entry in xdbf.entry_table {
-        println!("{:?} {:?}", entry.namespace, entry.id);
+        let path = id_to_pathbuf(&entry);
+        println!("{:?}", path);
 
-        let output_path = dir.join(PathBuf::from(format!(
-            "{}.{}.{}",
-            entry.namespace,
-            match entry.id {
-                XdbfId::String(string) => string,
-                XdbfId::Number(number) => number.to_string(),
-            },
-            if entry.namespace == 2 { "png" } else { "bin" }
-        )));
+        let output_path = dir.join(path);
         std::fs::write(output_path, entry.data)?;
     }
 
