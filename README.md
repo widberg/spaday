@@ -8,6 +8,14 @@ GFWL/Xbox 360 SPAFILE parser
 * https://free60.org/System-Software/Formats/SPA/
 * https://free60.org/System-Software/Profile_Account/
 
+### Prior Work
+
+* Xenia
+    - [src/xenia/kernel/util/xdbf_utils.cc](https://github.com/xenia-canary/xenia-canary/blob/canary_experimental/src/xenia/kernel/util/xdbf_utils.cc)
+    - [src/xenia/kernel/util/xdbf_utils.h](https://github.com/xenia-canary/xenia-canary/blob/canary_experimental/src/xenia/kernel/util/xdbf_utils.h)
+    - [src/xenia/kernel/util/xlast.cc](https://github.com/xenia-canary/xenia-canary/blob/canary_experimental/src/xenia/kernel/util/xlast.cc)
+    - [src/xenia/kernel/util/xlast.h](https://github.com/xenia-canary/xenia-canary/blob/canary_experimental/src/xenia/kernel/util/xlast.h)
+
 ### Notes
 
 #### Binwalk Analysis
