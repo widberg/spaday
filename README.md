@@ -2,6 +2,8 @@
 
 GFWL/Xbox 360 SPAFILE parser
 
+With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpat`.
+
 ### Acknowledgements
 
 * https://free60.org/System-Software/Formats/XDBF/
