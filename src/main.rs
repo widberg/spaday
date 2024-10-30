@@ -12,6 +12,8 @@ use std::{
 #[command(version, about, long_about = None)]
 struct Args {
     name: PathBuf,
+    #[clap(short, long)]
+    out: Option<PathBuf>,
 }
 
 #[binrw::binread]
@@ -353,7 +355,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let xdbf: Xdbf = bufreader.read_be()?;
 
-    let dir = args.name.parent().unwrap_or_else(|| Path::new("."));
+    let dir: &Path = args
+        .out
+        .as_deref()
+        .or_else(|| args.name.parent())
+        .unwrap_or_else(|| Path::new("."));
+
+    std::fs::create_dir_all(dir)?;
 
     for entry in xdbf.entry_table {
         let path = id_to_pathbuf(&entry);
