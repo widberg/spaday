@@ -78,7 +78,9 @@ struct Xsrc {
     XdbfSectionHeader header;
     u32 name_length;
     char filename[name_length];
-    u8 data[header.size - 8 - 4 - name_length];
+    u32 gzip_file_uncompressed_size;
+    u32 gzip_file_compressed_size;
+    u8 gzip_file[gzip_file_size];
 };
 
 struct Xstc {
