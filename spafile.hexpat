@@ -80,7 +80,7 @@ struct Xsrc {
     char filename[name_length];
     u32 gzip_file_uncompressed_size;
     u32 gzip_file_compressed_size;
-    u8 gzip_file[gzip_file_size];
+    u8 gzip_file[gzip_file_compressed_size];
 };
 
 struct Xstc {
@@ -111,7 +111,7 @@ struct Xvc2 {
     u8 data[header.size - 8];
 };
 
-struct String {
+struct XstrString {
     u16 string_id;
     u16 string_length;
     char string[string_length];
@@ -120,7 +120,7 @@ struct String {
 struct Xstr {
     XdbfSectionHeader header;
     u16 string_count;
-    String strings[string_count];
+    XstrString strings[string_count];
 };
 
 struct XdbfFreeSpaceEntry {
