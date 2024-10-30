@@ -1,9 +1,10 @@
-use binrw::{io::BufReader, BinReaderExt};
+use binrw::{io::BufReader, BinReaderExt, BinResult};
 use clap::Parser;
+use flate2::read::GzDecoder;
 use serde::Serialize;
 use std::{
     fs::File,
-    io::SeekFrom,
+    io::{Read, SeekFrom},
     path::{Path, PathBuf},
 };
 
@@ -78,7 +79,7 @@ struct XitbImage {
     image_id: u32,
     #[br(temp)]
     name_length: u32,
-    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), args { count: name_length as usize })]
+    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), count = name_length)]
     image_path: String,
 }
 
@@ -137,6 +138,13 @@ struct Xrpt {
     data: Vec<u8>,
 }
 
+#[binrw::parser(reader)]
+fn parse_gzip() -> BinResult<Vec<u8>> {
+    let mut x = Vec::<u8>::new();
+    GzDecoder::new(reader).read_to_end(&mut x)?;
+    Ok(x)
+}
+
 #[binrw::binread]
 #[derive(Debug, Serialize)]
 struct Xsrc {
@@ -144,11 +152,13 @@ struct Xsrc {
     _header: XdbfSectionHeader,
     #[br(temp)]
     name_length: u32,
-    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), args { count: name_length as usize })]
+    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), count = name_length)]
     filename: String,
-    gzip_file_uncompressed_size: u32,
-    gzip_file_compressed_size: u32,
-    #[br(count = gzip_file_compressed_size)]
+    #[br(temp)]
+    _gzip_file_uncompressed_size: u32,
+    #[br(temp)]
+    _gzip_file_compressed_size: u32,
+    #[br(parse_with = parse_gzip)]
     gzip_file: Vec<u8>,
 }
 
@@ -199,7 +209,7 @@ struct XstrString {
     string_id: u16,
     #[br(temp)]
     string_length: u16,
-    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), args { count: string_length as usize })]
+    #[br(try_map = |x: Vec<u8>| String::from_utf8(x), count = string_length)]
     string: String,
 }
 
@@ -350,12 +360,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:?}", path);
 
         let output_path = dir.join(path);
-        match entry.data {
+        match &entry.data {
             XdbfEntryData::XdbfEntryStructuredData(data) => {
                 let json = serde_json::to_string_pretty(&data)?;
-                std::fs::write(output_path, json)?;
+                std::fs::write(&output_path, json)?;
             }
-            XdbfEntryData::Bin(data) => std::fs::write(output_path, data)?,
+            XdbfEntryData::Bin(data) => std::fs::write(&output_path, data)?,
+        }
+
+        if let XdbfEntryData::XdbfEntryStructuredData(XdbfEntryStructuredData::Xsrc(xsrc)) =
+            entry.data
+        {
+            println!("{:?}", xsrc.filename);
+            let output_path = dir.join(xsrc.filename);
+            std::fs::write(output_path, xsrc.gzip_file)?;
         }
     }
 
