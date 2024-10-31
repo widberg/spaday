@@ -49,17 +49,17 @@ struct Xitb {
     XitbImage images[image_count];
 };
 
-struct Xmat {
-    XdbfSectionHeader header;
-    u8 data[header.size - 8];
-};
-
 struct Xpbm {
     XdbfSectionHeader header;
     u32 context_count;
     u32 property_count;
     u32 contexts[context_count];
     u32 properties[property_count];
+};
+
+struct Xmat {
+    XdbfSectionHeader header;
+    Xpbm property_bag_metadata;
 };
 
 struct XprpRecord {

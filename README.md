@@ -64,5 +64,6 @@ The PNG images are the game and achievement icons in namespace `2`, and the gzip
 
 * The "Record Count" field in the XPRP structure needed to be changed from a `u32` to a `u16` to avoid overrunning the end of the file.
 * The XPBM and XVC2 structures were implemented based on the Xenia code, as the documentation treated them as unstructured byte arrays.
+* The documentation has XMAT as an unstructured byte array, but it was an XPBM in my limited testing.
 * The documentation says that there will occasionally be unaccounted for bytes following a string in the string tables, but in my testing I never encountered this.
 * The documentation says that endianness is based on the magic, but in my limited testing and the Xenia code it was always big-endian.

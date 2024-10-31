@@ -104,9 +104,8 @@ struct Xitb {
 #[derive(Debug, Serialize)]
 struct Xmat {
     #[br(temp)]
-    header: XdbfSectionHeader,
-    #[br(count = header.size - 8)]
-    data: Vec<u8>,
+    _header: XdbfSectionHeader,
+    property_bag_metadata: Xpbm,
 }
 
 #[binrw::binread]
