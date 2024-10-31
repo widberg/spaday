@@ -74,7 +74,9 @@ struct Xprp {
 
 struct Xrpt {
     XdbfSectionHeader header;
-    u8 data[header.size - 8];
+    Xpbm property_bag_metadata;
+    u16 property_bag_metadata_count;
+    Xpbm property_bag_metadatas[property_bag_metadata_count];
 };
 
 struct Xsrc {
@@ -177,7 +179,7 @@ struct XdbfEntry {
         (1, 1481458004): Xmat xmat @ offset;
         (1, 1481654861): Xpbm xpbm @ offset;
         (1, 1481658960): Xprp xprp @ offset;
-        (1, 1481789524): Xrpt xrtp @ offset;
+        (1, 1481789524): Xrpt xrpt @ offset;
         (1, 1481855555): Xsrc xsrc @ offset;
         (1, 1481856067): Xstc xstc @ offset;
         (1, 1481918532): Xthd xthd @ offset;

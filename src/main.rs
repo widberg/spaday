@@ -45,6 +45,7 @@ struct XachAchievement {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58414348u32)]
 #[derive(Debug, Serialize)]
 struct Xach {
     #[br(temp)]
@@ -65,6 +66,7 @@ struct XcxtRecord {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58435854u32)]
 #[derive(Debug, Serialize)]
 struct Xcxt {
     #[br(temp)]
@@ -86,6 +88,7 @@ struct XitbImage {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58495442u32)]
 #[derive(Debug, Serialize)]
 struct Xitb {
     #[br(temp)]
@@ -97,6 +100,7 @@ struct Xitb {
 }
 
 #[binrw::binread]
+#[br(magic = 0x584D4154u32)]
 #[derive(Debug, Serialize)]
 struct Xmat {
     #[br(temp)]
@@ -106,6 +110,7 @@ struct Xmat {
 }
 
 #[binrw::binread]
+#[br(magic = 0x5850424Du32)]
 #[derive(Debug, Serialize)]
 struct Xpbm {
     #[br(temp)]
@@ -125,6 +130,7 @@ struct XprpRecord {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58505250u32)]
 #[derive(Debug, Serialize)]
 struct Xprp {
     #[br(temp)]
@@ -136,12 +142,16 @@ struct Xprp {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58525054u32)]
 #[derive(Debug, Serialize)]
 struct Xrpt {
     #[br(temp)]
-    header: XdbfSectionHeader,
-    #[br(count = header.size - 8)]
-    data: Vec<u8>,
+    _header: XdbfSectionHeader,
+    property_bag_metadata: Xpbm,
+    #[br(temp)]
+    property_bag_metadata_count: u16,
+    #[br(count = property_bag_metadata_count)]
+    property_bag_metadatas: Vec<Xpbm>,
 }
 
 #[binrw::parser(reader)]
@@ -152,6 +162,7 @@ fn parse_gzip() -> BinResult<Vec<u8>> {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58535243u32)]
 #[derive(Debug, Serialize)]
 struct Xsrc {
     #[br(temp)]
@@ -169,6 +180,7 @@ struct Xsrc {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58535443u32)]
 #[derive(Debug, Serialize)]
 struct Xstc {
     #[br(temp)]
@@ -187,6 +199,7 @@ enum TitleType {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58544844u32)]
 #[derive(Debug, Serialize)]
 struct Xthd {
     #[br(temp)]
@@ -225,7 +238,6 @@ struct Xvc2SharedView {
     column_entries: Vec<Xvc2ViewFieldEntry>,
     #[br(count = row_count)]
     row_entries: Vec<Xvc2ViewFieldEntry>,
-    #[br(pad_before = 4)]
     property_bag_metadata: Xpbm,
 }
 
@@ -240,6 +252,7 @@ struct Xvc2StatsViewTableEntry {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58564332u32)]
 #[derive(Debug, Serialize)]
 struct Xvc2 {
     #[br(temp)]
@@ -263,6 +276,7 @@ struct XstrString {
 }
 
 #[binrw::binread]
+#[br(magic = 0x58535452u32)]
 #[derive(Debug, Serialize)]
 struct Xstr {
     #[br(temp)]
@@ -277,29 +291,17 @@ struct Xstr {
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
 enum XdbfEntryStructuredData {
-    #[br(magic = 0x58414348u32)]
     Xach(Xach),
-    #[br(magic = 0x58435854u32)]
     Xcxt(Xcxt),
-    #[br(magic = 0x58495442u32)]
     Xitb(Xitb),
-    #[br(magic = 0x584D4154u32)]
     Xmat(Xmat),
-    #[br(magic = 0x5850424Du32)]
     Xpbm(Xpbm),
-    #[br(magic = 0x58505250u32)]
     Xprp(Xprp),
-    #[br(magic = 0x58525054u32)]
     Xrpt(Xrpt),
-    #[br(magic = 0x58535243u32)]
     Xsrc(Xsrc),
-    #[br(magic = 0x58535443u32)]
     Xstc(Xstc),
-    #[br(magic = 0x58544844u32)]
     Xthd(Xthd),
-    #[br(magic = 0x58564332u32)]
     Xvc2(Xvc2),
-    #[br(magic = 0x58535452u32)]
     Xstr(Xstr),
 }
 
