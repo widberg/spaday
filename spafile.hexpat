@@ -56,7 +56,10 @@ struct Xmat {
 
 struct Xpbm {
     XdbfSectionHeader header;
-    u8 data[header.size - 8];
+    u32 context_count;
+    u32 property_count;
+    u32 contexts[context_count];
+    u32 properties[property_count];
 };
 
 struct XprpRecord {
@@ -106,9 +109,42 @@ struct Xthd {
     padding[16];
 };
 
+struct Xvc2ViewFieldEntry {
+    u32 size;
+    u32 property_id;
+    u32 flags;
+    u16 attribute_id;
+    u16 string_id;
+    u16 aggregation_type;
+    u8 ordinal;
+    u8 field_type;
+    u32 format_type;
+    padding[8];
+};
+
+struct Xvc2SharedView {
+    u16 column_count;
+    u16 row_count;
+    padding[8];
+    Xvc2ViewFieldEntry column_entries[column_count];
+    Xvc2ViewFieldEntry row_entries[row_count];
+    Xpbm property_bag_metadata;
+};
+
+struct Xvc2StatsViewTableEntry {
+    u32 id;
+    u32 flags;
+    u16 shared_index;
+    u16 string_id;
+    padding[4];
+};
+
 struct Xvc2 {
     XdbfSectionHeader header;
-    u8 data[header.size - 8];
+    u16 shared_view_count;
+    Xvc2SharedView shared_views[shared_view_count];
+    u16 view_count;
+    Xvc2StatsViewTableEntry views[view_count];
 };
 
 struct XstrString {

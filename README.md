@@ -4,6 +4,14 @@ GFWL/Xbox 360 SPAFILE parser
 
 With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpat`.
 
+### Usage
+
+The SPAFILE resource can be extracted from the executable using [Resource Hacker](https://www.angusj.com/resourcehacker/). It should be under the `RT_RCDATA` folder in the tree view on the left. Once located, right-click on the resource and select "Save *.bin resource...". Then spaday can be used to extract the contents of the SPAFILE.
+
+```console
+$ spaday path/to/spafile -o path/to/output_dir
+```
+
 ### Acknowledgements
 
 * https://free60.org/System-Software/Formats/XDBF/
@@ -55,5 +63,7 @@ The PNG images are the game and achievement icons in namespace `2`, and the gzip
 #### Deviations from Free60 Documentation
 
 * The "Record Count" field in the XPRP structure needed to be changed from a `u32` to a `u16` to avoid overrunning the end of the file.
-* The XRPT and XVC2 structures as laid out in the documentation would not consistently parse, so they were changed to consume the entire remaining data in the entry as a byte array.
+* The XRPT structure as laid out in the documentation would not consistently parse, so it was changed to consume the entire remaining data in the entry as a byte array.
+* The XPBM and XVC2 structures were implemented based on the Xenia code, as the documentation treated them as unstructured byte arrays.
 * The documentation says that there will occasionally be unaccounted for bytes following a string in the string tables, but in my testing I never encountered this.
+* The documentation says that endianness is based on the magic, but in my limited testing and the Xenia code it was always big-endian.

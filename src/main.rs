@@ -109,9 +109,13 @@ struct Xmat {
 #[derive(Debug, Serialize)]
 struct Xpbm {
     #[br(temp)]
-    header: XdbfSectionHeader,
-    #[br(count = header.size - 8)]
-    data: Vec<u8>,
+    _header: XdbfSectionHeader,
+    context_count: u32,
+    property_count: u32,
+    #[br(count = context_count)]
+    contexts: Vec<u32>,
+    #[br(count = property_count)]
+    properties: Vec<u32>,
 }
 
 #[binrw::binread]
@@ -198,11 +202,54 @@ struct Xthd {
 
 #[binrw::binread]
 #[derive(Debug, Serialize)]
+struct Xvc2ViewFieldEntry {
+    size: u32,
+    property_id: u32,
+    flags: u32,
+    attribute_id: u16,
+    string_id: u16,
+    aggregation_type: u16,
+    ordinal: u8,
+    field_type: u8,
+    #[br(pad_after = 8)]
+    format_type: u32,
+}
+
+#[binrw::binread]
+#[derive(Debug, Serialize)]
+struct Xvc2SharedView {
+    column_count: u16,
+    #[br(pad_after = 8)]
+    row_count: u16,
+    #[br(count = column_count)]
+    column_entries: Vec<Xvc2ViewFieldEntry>,
+    #[br(count = row_count)]
+    row_entries: Vec<Xvc2ViewFieldEntry>,
+    #[br(pad_before = 4)]
+    property_bag_metadata: Xpbm,
+}
+
+#[binrw::binread]
+#[derive(Debug, Serialize)]
+struct Xvc2StatsViewTableEntry {
+    id: u32,
+    flags: u32,
+    shared_index: u16,
+    #[br(pad_after = 4)]
+    string_id: u16,
+}
+
+#[binrw::binread]
+#[derive(Debug, Serialize)]
 struct Xvc2 {
     #[br(temp)]
-    header: XdbfSectionHeader,
-    #[br(count = header.size - 8)]
-    data: Vec<u8>,
+    _header: XdbfSectionHeader,
+    shared_view_count: u16,
+    #[br(count = shared_view_count)]
+    shared_views: Vec<Xvc2SharedView>,
+    view_count: u16,
+    #[br(count = view_count)]
+    views: Vec<Xvc2StatsViewTableEntry>,
 }
 
 #[binrw::binread]
