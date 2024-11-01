@@ -27,7 +27,7 @@ struct XdbfFreeSpaceEntry {
 #[derive(Debug)]
 struct XdbfSectionHeader {
     _version: u32,
-    size: u32,
+    _size: u32,
 }
 
 #[binrw::binread]
