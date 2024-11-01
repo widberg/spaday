@@ -2,6 +2,9 @@
 
 GFWL/Xbox 360 SPAFILE parser
 
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/widberg/spaday/build.yml)](https://github.com/widberg/spaday/actions)
+[![Release Nightly](https://img.shields.io/badge/release-nightly-5e025f?labelColor=301934)](https://nightly.link/widberg/spaday/workflows/build/master)
+
 With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpat`.
 
 ### Usage

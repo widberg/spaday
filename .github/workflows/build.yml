@@ -1,0 +1,40 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build for ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: windows
+            os: windows-latest
+            bin_extension: .exe
+          - name: macos
+            os: macos-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.82.0
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.0
+
+      - name: Build
+        run: cargo build --release --locked --bins
+        env:
+          CARGO_PROFILE_RELEASE_LTO: "true"
+
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: spaday-${{ matrix.name }}-${{ github.sha }}
+          path: |
+            ./target/release/spaday${{ matrix.bin_extension }}
