@@ -12,6 +12,10 @@ The SPAFILE resource can be extracted from the executable using [Resource Hacker
 $ spaday path/to/spafile -o path/to/output_dir
 ```
 
+### Issues
+
+If you find a SPAFILE that fails to parse or yields unexpected results, please open an issue with the offending SPAFILE attached so I can add it to my test corpus. I don't have a large sample size of SPAFILES to test with, so I'm sure there are edge cases that I haven't encountered yet.
+
 ### Acknowledgements
 
 * https://free60.org/System-Software/Formats/XDBF/
