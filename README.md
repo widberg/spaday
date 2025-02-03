@@ -10,7 +10,13 @@ With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpa
 
 ### Usage
 
-The SPAFILE resource can be extracted from the executable using [Resource Hacker](https://www.angusj.com/resourcehacker/). It should be under the `RT_RCDATA` folder in the tree view on the left. Once located, right-click on the resource and select "Save *.bin resource...". Then spaday can be used to extract the contents of the SPAFILE.
+spaday can be used to parse the contents of the SPAFILE directly from the executable.
+
+```console
+$ spaday path/to/executable -o path/to/output_dir
+```
+
+Alternatively, spaday can parse a standalone SPAFILE. The SPAFILE resource can be extracted from the executable using [Resource Hacker](https://www.angusj.com/resourcehacker/). It should be under the `RT_RCDATA` folder in the tree view on the left. Once located, right-click on the resource and select "Save *.bin resource...". Then spaday can be used to parse the contents of the SPAFILE.
 
 ```console
 $ spaday path/to/spafile -o path/to/output_dir

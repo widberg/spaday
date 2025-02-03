@@ -1,10 +1,10 @@
-use binrw::{io::BufReader, BinReaderExt, BinResult};
+use binrw::{BinReaderExt, BinResult};
 use clap::Parser;
+use exe::{FlattenedResourceDataEntry, ResolvedDirectoryID, ResourceDirectory, VecPE};
 use flate2::read::GzDecoder;
 use serde::Serialize;
 use std::{
-    fs::File,
-    io::{Read, SeekFrom},
+    io::{Cursor, Read, SeekFrom},
     path::{Path, PathBuf},
 };
 
@@ -398,10 +398,30 @@ fn id_to_pathbuf(entry: &XdbfEntry) -> PathBuf {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let reader = File::open(&args.name)?;
-    let mut bufreader = BufReader::new(reader);
+    let data = std::fs::read(&args.name)?;
 
-    let xdbf: Xdbf = bufreader.read_be()?;
+    let xdbf: Xdbf = match Cursor::new(&data).read_be() {
+        Ok(xdbf) => xdbf,
+        Err(_) => {
+            let pe = VecPE::from_disk_data(&data);
+            let resource_directory = ResourceDirectory::parse(&pe)?;
+            let spafile_resource = resource_directory
+                .resources
+                .iter()
+                .find(|r| {
+                    matches!(r,
+                        FlattenedResourceDataEntry {
+                            rsrc_id: ResolvedDirectoryID::Name(r),
+                            type_id: ResolvedDirectoryID::Name(t),
+                            ..
+                        } if r == "SPAFILE" && t == "RT_RCDATA"
+                    )
+                })
+                .ok_or("Could not find SPAFILE resource in executable.")?;
+            let spafile_data = spafile_resource.get_data_entry(&pe)?.read(&pe)?;
+            Cursor::new(spafile_data).read_be()?
+        }
+    };
 
     let dir: &Path = args
         .out
