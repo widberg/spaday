@@ -1,12 +1,13 @@
 # spaday
 
-GFWL/Xbox 360 SPAFILE parser
+GFWL/Xbox 360 [SPAFILE](https://free60.org/System-Software/Formats/SPA/) parser
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/widberg/spaday/build.yml)](https://github.com/widberg/spaday/actions)
 ![GitHub Release](https://img.shields.io/github/v/release/widberg/spaday)
 [![Release Nightly](https://img.shields.io/badge/release-nightly-5e025f?labelColor=301934)](https://nightly.link/widberg/spaday/workflows/build/master)
+[![Join the chat at https://discord.gg/9fhY3ucmAf](https://img.shields.io/badge/chat-on_discord-7389D8.svg?logo=discord&logoColor=ffffff&labelColor=6A7EC2)](https://discord.gg/9fhY3ucmAf)
 
-With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpat`.
+With a complementary [ImHex](https://imhex.werwolv.net/) pattern, `spafile.hexpat`. Both the pattern and spaday also work with [GPD](https://free60.org/System-Software/Formats/GPD/) files and other [XDBF](https://free60.org/System-Software/Formats/XDBF/) based file formats.
 
 ### Usage
 
