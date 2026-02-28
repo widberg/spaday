@@ -361,7 +361,9 @@ fn id_to_pathbuf(entry: &XdbfEntry) -> PathBuf {
                     let trimmed = &bytes[first_non_zero_index..];
 
                     std::str::from_utf8(trimmed).ok().filter(|string| {
-                        !string.is_empty() && string.chars().all(|c| c.is_ascii_alphanumeric())
+                        string.len() >= 4
+                            && string.chars().all(|c| c.is_ascii_alphanumeric())
+                            && string.chars().any(|c| !c.is_ascii_digit())
                     })
                 }
                 3 => match entry.id {
